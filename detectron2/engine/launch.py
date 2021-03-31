@@ -94,6 +94,7 @@ def _distributed_worker(
 ):
     assert torch.cuda.is_available(), "cuda is not available. Please check your installation."
     global_rank = machine_rank * num_gpus_per_machine + local_rank
+    torch.cuda.set_device(local_rank)
     try:
         dist.init_process_group(
             backend="NCCL",
@@ -111,7 +112,6 @@ def _distributed_worker(
     comm.synchronize()
 
     assert num_gpus_per_machine <= torch.cuda.device_count()
-    torch.cuda.set_device(local_rank)
 
     # Setup the local process group (which contains ranks within the same machine)
     assert comm._LOCAL_PROCESS_GROUP is None
